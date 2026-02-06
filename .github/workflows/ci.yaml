@@ -27,14 +27,15 @@ jobs:
           aws-region: us-east-2
 
       - name: Login to Amazon ECR
-        id: build-image
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker Image
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: training
           IMAGE_TAG: latest
-
-      - name: Build Docker Image
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
       
