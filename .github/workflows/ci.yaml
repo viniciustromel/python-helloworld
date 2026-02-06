@@ -13,10 +13,31 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.x'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: build-image
+        uses: aws-actions/amazon-ecr-login@v2
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: training
+          IMAGE_TAG: latest
+
       - name: Build Docker Image
         run: |
-          docker build -t hello-python .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+      
+      - name: Push Docker Image
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
