@@ -25,6 +25,7 @@ jobs:
           python-version: '3.x'
 
       - name: Configure AWS Credentials
+        id: login-ecr
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::533547056424:role/github-oidc
