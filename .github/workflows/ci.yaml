@@ -2,10 +2,9 @@ name: CI - Python Hello World
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
-      - 'main'
-    pull_request:
+      - main
 
 permissions:
   id-token: write
