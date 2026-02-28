@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-helloworld-deployment
+  namespace: python-helloworld
+  labels:
+    app: python-helloworld
+spec:
+  selector:
+    matchLabels:
+      app: python-helloworld
+  template:
+    metadata:
+      labels:
+        app: python-helloworld
+    spec:
+      containers:
+      - name: python-helloworld
+        image: python:3.14-slim-bookworm
+        ports:
+        - containerport: 5000

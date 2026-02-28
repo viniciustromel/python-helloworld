@@ -1,17 +1,18 @@
-name: CI - Python Hello World
+name: CD - Python Hello World
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     branches:
-      - main
+      - 'main'
+    pull_request:
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  ci:
+  cd:
     runs-on: ubuntu-latest
     
     steps:
@@ -29,19 +30,13 @@ jobs:
           role-to-assume: arn:aws:iam::533547056424:role/github-oidc
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and Push Docker Image
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: training
-          IMAGE_TAG: ${{ github.sha }}
+      
+      - name: Update kubeconfig
         run: |
-          SHORT_SHA=${IMAGE_TAG::7}
-
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA
+          aws eks update-kubeconfig \
+            --name ${{ vars.EKS_CLUSTER_NAME }} \
+            --region ${{ vars.AWS_REGION }}
+      
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f manifests/
