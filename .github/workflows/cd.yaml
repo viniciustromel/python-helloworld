@@ -1,0 +1,42 @@
+name: CD - Python Hello World
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    pull_request:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  cd:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::533547056424:role/github-oidc
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ vars.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ vars.EKS_CLUSTER_NAME }} \
+            --region ${{ vars.AWS_REGION }}
+      
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f manifests/
