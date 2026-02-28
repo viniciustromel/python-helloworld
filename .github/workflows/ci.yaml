@@ -40,8 +40,10 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: training
-          IMAGE_TAG: ${{ steps.commit.outputs.short }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          SHORT_SHA=${IMAGE_TAG::7}
+
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA
           
