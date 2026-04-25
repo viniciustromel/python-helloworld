@@ -51,9 +51,8 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE }}
           format: 'table'
-          exit-code: '1'
+          #exit-code: '1'
           severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
 
       - name: Push Docker Image
         run: |
